@@ -1,0 +1,25 @@
+// Access environment variables
+const rootUser = process.env.MONGO_INITDB_ROOT_USERNAME;
+const rootPassword = process.env.MONGO_INITDB_ROOT_PASSWORD;
+const dbName = process.env.MONGO_INITDB_DATABASE;
+const appUser = process.env.MONGO_APP_USER;
+const appPassword = process.env.MONGO_APP_PASS;
+
+// Authenticate as the root user
+db.getSiblingDB('admin').auth(rootUser, rootPassword);
+
+// Create the application database (if it doesn't exist)
+const appDB = db.getSiblingDB(dbName);
+
+// Check if the application user already exists
+const existingUser = appDB.getUser(appUser);
+if (!existingUser) {
+  appDB.createUser({
+    user: appUser,
+    pwd: appPassword,
+    roles: [{ role: "readWrite", db: dbName }]
+  });
+  print("✅ Application user created successfully!");
+} else {
+  print("⚠️ Application user already exists. Skipping creation.");
+}
