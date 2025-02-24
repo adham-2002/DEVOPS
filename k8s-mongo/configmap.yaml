@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: kubeshop
+data:
+  MONGO_URI: "mongodb://adham:adham2002@mongodb:27017/ecommerce?authSource=ecommerce"
+  JWT_SECRET: "adhamsomethingsecret"
+  REDIS_HOST: "redis"
