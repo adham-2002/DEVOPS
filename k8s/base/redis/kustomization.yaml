@@ -7,7 +7,6 @@ commonLabels:
   app: redis
 
 resources:
-  - configmap.yaml
   - deployment.yaml
   - secret.yaml
   - service.yaml
