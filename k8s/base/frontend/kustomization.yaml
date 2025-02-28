@@ -3,8 +3,9 @@ kind: Kustomization
 
 namespace: kubeshop
 
-commonLabels:
-  app: frontend
+labels:
+  - pairs:
+       app: frontend
 
 resources:
   - deployment.yaml

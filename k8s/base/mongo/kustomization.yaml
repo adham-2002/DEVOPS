@@ -3,8 +3,9 @@ kind: Kustomization
 
 namespace: kubeshop
 
-commonLabels:
-  app: mongo
+labels:
+  - pairs:
+       app: mongo
 
 resources:
   - deployment.yaml

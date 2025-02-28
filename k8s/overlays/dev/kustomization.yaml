@@ -1,4 +1,3 @@
-#! witch this file you can change variables for development environment (local which overwrite production environment)
 resources:
   - ../../base/redis
   - ../../base/mongo

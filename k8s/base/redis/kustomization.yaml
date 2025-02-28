@@ -3,8 +3,9 @@ kind: Kustomization
 
 namespace: kubeshop
 
-commonLabels:
-  app: redis
+labels:
+  - pairs:
+       app: redis
 
 resources:
   - deployment.yaml

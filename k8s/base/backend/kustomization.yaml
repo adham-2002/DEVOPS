@@ -3,8 +3,9 @@ kind: Kustomization
 
 namespace: kubeshop
 
-commonLabels:
-  app: backend
+labels:
+  - pairs:
+       app: backend
 
 resources:
   - configmap.yaml
