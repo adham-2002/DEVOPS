@@ -55,7 +55,7 @@ services:
       MONGO_APP_PASS: ${MONGO_APP_PASS}
     volumes:
       -  mongo-ecommerce-data:/data/db
-      - ./db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./db/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
     networks:
       - ecommerce-network
     deploy:
