@@ -33,7 +33,7 @@ services:
     depends_on:
       - backend
     networks:
-      - ecommerce-network
+      - kubeshop-network
     deploy:
       resources:
         limits:
