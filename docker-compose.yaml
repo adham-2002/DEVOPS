@@ -1,5 +1,7 @@
 services:
   backend:
+    # ! best practice leave it like that 
+    # ! notice <project-name>_<service-name>_<instance-number> : this is the default name of the container
     build: ./backend
     ports:
       - "3000:3000"  
@@ -14,7 +16,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     networks:
-      - ecommerce-network
+      - kubeshop-network
     deploy:
       resources:
         limits:
@@ -54,9 +56,9 @@ services:
       MONGO_APP_USER: ${MONGO_APP_USER}
       MONGO_APP_PASS: ${MONGO_APP_PASS}
     volumes:
-      -  mongo-ecommerce-data:/data/db
+      -  mongo-kubeshop-data:/data/db
     networks:
-      - ecommerce-network
+      - kubeshop-network
     deploy:
       resources:
         limits:
@@ -72,9 +74,9 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - redis-data:/data
+      - redis-kubeshop-data:/data
     networks:
-      - ecommerce-network
+      - kubeshop-network
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
@@ -99,7 +101,7 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASS}
       ME_CONFIG_MONGODB_SERVER: mongodb
     networks:
-      - ecommerce-network
+      - kubeshop-network
     deploy:
       resources:
         limits:
@@ -109,8 +111,8 @@ services:
           memory: "128M"
           cpus: "0.25"
 volumes:
-   mongo-ecommerce-data:
-   redis-data:
+   mongo-kubeshop-data:
+   redis-kubeshop-data:
 
 networks:
-  ecommerce-network:
+  kubeshop-network:
