@@ -13,8 +13,7 @@ pipeline {
     stage('Install Docker Compose') {
       steps {
         sh '''
-        # Install only if not already in PATH
-          if ! command -v docker-compose >/dev/null 2>&1; then    
+        if ! command -v docker-compose >/dev/null 2>&1; then
           echo "Installing Docker Compose..."
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
@@ -22,9 +21,14 @@ pipeline {
         '''
       }
     }
+    stage('Cleanup Previous Containers') {
+      steps {
+        sh 'docker-compose down --remove-orphans || true'  // Cleanup before starting
+      }
+    }
     stage('Start Containers') {
       steps {
-        sh 'docker-compose up -d'
+        sh 'docker-compose up -d'  
       }
     }
   }
