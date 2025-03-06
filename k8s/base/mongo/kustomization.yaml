@@ -12,5 +12,4 @@ resources:
   - secret.yaml
   - service.yaml
   - pvc.yaml
-  - configmap.yaml
   # kubectl create configmap mongo-init-script --from-file=init-mongo.js -n kubeshop

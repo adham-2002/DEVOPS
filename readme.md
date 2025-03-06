@@ -59,10 +59,12 @@ E-Commerce-Platform/
 |   |   |   |── configmap.yaml
 |   |   |   |── secret.yaml
 |   |   |   |── pvc.yaml
-|   |   |   |── init-mongo.js
 |   |   |   |── kustomization.yaml
 │   │   ├── redis/
 │   │   │   ├── deployment.yaml
+│   │   │   ├── kustomization.yaml
+│   │   │   ├── pvc.yaml
+│   │   │   ├── secret.yaml
 │   │   │   ├── service.yaml
 │   │   ├── ingress.yaml
 │   ├── overlays/
@@ -72,9 +74,11 @@ E-Commerce-Platform/
 │   │   │   ├── kustomization.yaml
 │   │   ├── prod/
 │   │   │   ├── kustomization.yaml
-
+│   ├── scripts/
 ├── .env
-├── docker-compose.yml
+├── Jenkinsfile
+├── Dockerfile
+├── docker-compose.yaml
 ├── README.md
 ```
 ## 📌 Step-by-Step Development Journey

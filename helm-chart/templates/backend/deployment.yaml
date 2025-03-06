@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
-  namespace: kubeshop
+  namespace: {{ .Values.namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
       app: backend
@@ -15,10 +15,10 @@ spec:
     spec:
       containers:
       - name: backend
-        image: adhamelganzoury/k8s-backend:latest 
+        image: {{ .Values.backend.image }}
         # imagePullPolicy: Never
         ports:
-        - containerPort: 3000
+        - containerPort: {{ .Values.backend.servicePort }}
         env:
         - name: REDIS_HOST
           valueFrom:
@@ -51,18 +51,4 @@ spec:
               name: backend-secrets
               key: REFRESH_TOKEN_SECRET
         resources:
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        # readinessProbe:
-        #   httpGet:
-        #     path: /health
-        #     port: 3000
-        #   initialDelaySeconds: 30
-        #   periodSeconds: 5
-        # livenessProbe:
-        #   httpGet:
-        #     path: /health
-        #     port: 3000
-        #   initialDelaySeconds: 20
-        #   periodSeconds: 20
+          {{- toYaml .Values.backend.resources | nindent 12 }}

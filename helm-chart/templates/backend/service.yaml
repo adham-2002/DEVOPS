@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend 
+  namespace: {{ .Values.namespace }}  # From values.yaml
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: {{ .Values.backend.servicePort }} 
+      targetPort: {{ .Values.backend.servicePort }}
+  type: ClusterIP

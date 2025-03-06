@@ -3,3 +3,4 @@ resources:
   - ../../base/mongo
   - ../../base/backend
   - ../../base/frontend
+  # - ../../base/ingress
