@@ -1,0 +1,26 @@
+---
+- name: Validate Local Development Environment
+  hosts: local_servers
+  become: false  # No sudo needed for local checks
+  tasks:
+    - name: Check Docker Installation
+      command: docker --version
+      register: docker_version
+      ignore_errors: yes
+
+    - name: Check Docker Compose Installation
+      command: docker compose version
+      register: docker_compose_version
+      ignore_errors: yes
+
+    - name: Check if Jenkins Container is Running
+      command: docker ps --filter "name=jenkins" --format "{{'{{'}}.Status{{'}}'}}"
+      register: jenkins_status
+      ignore_errors: yes
+
+    - name: Display Results
+      debug:
+        msg:
+          - "Docker: {{ docker_version.stdout | default('Not installed') }}"
+          - "Docker Compose: {{ docker_compose_version.stdout | default('Not installed') }}"
+          - "Jenkins Container Status: {{ jenkins_status.stdout | default('Not running') }}"

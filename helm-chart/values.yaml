@@ -62,3 +62,4 @@ ingress:
   enabled: true
   className: "nginx"
   host: kubeshop.local
+#! helm upgrade ecommerce ./dist/ecommerce-platform-0.1.0.tgz --namespace kubeshop -f helm-chart/values.yaml
