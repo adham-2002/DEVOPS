@@ -10,10 +10,11 @@ pipeline {
         git branch: 'main', url: REPO_URL, credentialsId: 'githubToken'
       }
     }
+
     stage('Install Docker Compose') {
       steps {
         sh '''
-        if ! command -v docker-compose >/dev/null 2>&1; then
+        if ! command -v docker-compose >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
           echo "Installing Docker Compose..."
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
@@ -21,14 +22,25 @@ pipeline {
         '''
       }
     }
-    stage('Cleanup Previous Containers') {
+
+    stage('Infra Validation') {
       steps {
-        sh 'docker-compose down --remove-orphans || true'  // Cleanup before starting
+        sh '''
+        cd ansible
+        ansible-playbook -i inventories/local.ini playbook.yml
+        '''
       }
     }
+
+    stage('Cleanup Previous Containers') {
+      steps {
+        sh 'docker-compose down --remove-orphans || true'
+      }
+    }
+
     stage('Start Containers') {
       steps {
-        sh 'docker-compose up -d'  
+        sh 'docker-compose up -d'
       }
     }
   }
