@@ -2,6 +2,9 @@ FROM jenkins/jenkins:lts
 
 USER root
 
+
+ARG DOCKER_GID=984
+
 # تحديث النظام وتثبيت sudo و docker.io و openssh-client و Ansible
 RUN apt-get update && \
     apt-get install -y sudo docker.io openssh-client ansible && \
@@ -12,3 +15,4 @@ USER jenkins
 
 # أمر التشغيل الأساسي
 CMD ["/usr/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
+# docker build --build-arg DOCKER_GID=984 -t jenkins-adham .
