@@ -33,7 +33,7 @@ services:
     depends_on:
       - backend
     environment:
-         - VITE_BASE_URL=http://backend:3000/api
+         - VITE_BASE_URL=http://localhost/api/
     networks:
       - kubeshop-network
     deploy:
@@ -112,19 +112,19 @@ services:
         reservations:
           memory: "128M"
           cpus: "0.25"
-  nginx:
-    image: nginx:latest
-    container_name: nginx_kubeshop
-    ports:
-      - "443:443"
-      - "80:80"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/certs:/etc/nginx/certs
-    depends_on:
-      - backend
-    networks:
-      - kubeshop-network
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx_kubeshop
+  #   ports:
+  #     - "443:443"
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/conf.d:/etc/nginx/conf.d
+  #     - ./nginx/certs:/etc/nginx/certs
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - kubeshop-network
 
 volumes:
    mongo-kubeshop-data:
