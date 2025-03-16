@@ -16,3 +16,4 @@ USER jenkins
 # أمر التشغيل الأساسي
 CMD ["/usr/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
 # docker build --build-arg DOCKER_GID=984 -t jenkins-adham .
+#
