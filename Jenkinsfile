@@ -46,7 +46,13 @@ pipeline {
         sh 'docker compose up -d --build'
       }
     }
-
-  } 
-
+  }
+  
+  post {
+    always {
+      sh 'docker compose logs --no-color > docker-logs.txt'
+      archiveArtifacts artifacts: 'docker-logs.txt', fingerprint: true
+      cleanWs()
+    }
+  }
 }
