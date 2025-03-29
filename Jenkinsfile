@@ -1,3 +1,4 @@
+// sudo chmod 666 /var/run/docker.sock
 pipeline {
   agent any
   environment {
@@ -9,7 +10,7 @@ pipeline {
     
     stage('Checkout Code') {
       steps {
-        git branch: 'main', url: 'https://github.com/adham-2002/DEVOPS.git', credentialsId: 'githubToken'
+        git branch: 'main', url: env.REPO_URL, credentialsId: 'githubToken'
       }
     }
 
@@ -44,6 +45,14 @@ pipeline {
     stage('Start Containers') {
       steps {
         sh 'docker compose up -d --build'
+      }
+    }
+  }
+  // push docker images
+  stage("Push Docker Images") {
+    steps {
+      script {
+        
       }
     }
   }

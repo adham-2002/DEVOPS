@@ -1,5 +1,5 @@
 import express from "express";
-import { getUserOrders, login, register,logout,refreshToken } from "../services/userService";
+import { getUserOrders, login, register } from "../services/userService";
 import validateJWT from "../middlewares/validateJWT";
 import { ExtendRequest } from "../types/extendedRequest";
 const router = express.Router();
@@ -31,15 +31,5 @@ router.get("/myorder", validateJWT, async (req: ExtendRequest, res) => {
   } catch (err) {
     res.status(500).send("Something Went Wrong!");
   }
-});
-router.post('/refresh', async (req, res) => {
-  const { refreshToken } = req.body;
-  const result = await refreshToken(refreshToken);
-  res.status(result.statusCode).json(result.data);
-});
-
-router.post('/logout', validateJWT, async (req: ExtendRequest, res) => {
-  const result = await logout(req.user!._id.toString());
-  res.status(result.statusCode).json(result.data);
 });
 export default router;

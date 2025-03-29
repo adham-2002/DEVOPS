@@ -8,6 +8,12 @@ A containerized e-commerce system with Node.js backend, React frontend, MongoDB,
 
   ```bash
   E-Commerce-Platform/
+  ├── ansible/
+  │   ├── inventories/
+  │   ├── playbook.yml
+  ├── db/
+  │   ├── Dockerfile
+  │   ├── init-monogo.js
   ├── backend/
   │   ├── src/
   │   │   ├── config/
@@ -78,15 +84,15 @@ A containerized e-commerce system with Node.js backend, React frontend, MongoDB,
   │   │   ├── prod/
   │   │   │   ├── kustomization.yaml
   │   ├── scripts/
-  │   ├── helm-chart/
-  │   │   ├── Chart.yaml
-  │   │   ├── values.yaml
-  │   │   ├── templates/
-  │   │   │   ├── backend/
-  │   │   │   ├── frontend/
-  │   │   │   ├── ingress.yaml
-  │   │   │   ├── mongodb/
-  │   │   │   ├── redis/  
+  │── helm-chart/
+  │   ├── Chart.yaml
+  │   ├── values.yaml
+  │   ├── templates/
+  │   │   ├── backend/
+  │   │   ├── frontend/
+  │   │   ├── ingress.yaml
+  │   │   ├── mongodb/
+  │   │   ├── redis/  
   ├── .env
   ├── Jenkinsfile
   ├── Dockerfile
@@ -286,3 +292,4 @@ networks:
 ```
 ---
 
+smee -u https://smee.io/9HuiZFetpAt65S3j -t http://localhost:8080/github-webhook/
