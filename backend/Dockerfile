@@ -1,19 +1,13 @@
-#! use node.js as the base image
-FROM node:18
-#! set the working directory inside the container and if not exist create it
+FROM node:18-bullseye-slim AS builder
 WORKDIR /app
-#! copy package.json and package-lock.json to the working directory
 COPY package*.json ./
-#! install dependencies using npm package manager
-RUN npm install
-#! copy the entire backend code
+RUN npm install --production=false
 COPY . .
-#! expose the backend port
+RUN npm run build
+
+FROM node:18-bullseye-slim
+WORKDIR /app
+COPY --from=builder /app /app
+RUN npm install --production
 EXPOSE 3000
-#! start the backend server
-CMD ["npm", "run", "dev"]
-
-
-
-
-
+CMD ["npm", "run", "start"]

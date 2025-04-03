@@ -10,9 +10,8 @@ import cors from "cors";
 dotenv.config();
 const app = express();
 app.use(cors({
-  origin: ["https://kubeshop.local", "http://localhost:5173"],
-  
-  credentials: true
+  origin:"*",
+  credentials:true,
 }));
 const port = 3000;
 app.use(express.json());
