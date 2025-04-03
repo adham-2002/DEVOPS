@@ -1,5 +1,5 @@
 resources:
-  - ../../base/redis
+  # - ../../base/redis
   - ../../base/mongo
   - ../../base/backend
   - ../../base/frontend

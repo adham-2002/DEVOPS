@@ -20,21 +20,6 @@ spec:
         ports:
         - containerPort: {{ .Values.backend.servicePort }}
         env:
-        - name: REDIS_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: backend-config
-              key: REDIS_HOST
-        - name: REDIS_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: backend-config
-              key: REDIS_PORT
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: REDIS_PASSWORD
         - name: MONGO_URI
           valueFrom:
             secretKeyRef:

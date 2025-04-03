@@ -4,25 +4,22 @@ namespace: kubeshop
 # Backend Configuration
 backend:
   enabled: true
-  image: adhamelganzoury/k8s-backend:latest
+  image: adhamelganzoury/kubeshop-backend:latest
   replicaCount: 1
   servicePort: 3000
   resources:
     limits:
       memory: "512Mi"
       cpu: "500m"
-  env:
-    redisHost: "redis.kubeshop.svc.cluster.local"  # From Redis subchart
-    redisPort: 6379
   secrets:
-    redisPassword: "adham2002"
+    # redisPassword: "adham2002"
     mongoUri: "mongodb://adham:adham2002@mongodb.kubeshop.svc.cluster.local:27017/ecommerce?authSource=ecommerce"
     jwtSecret: "adhamsomethingsecret"
     refreshTokenSecret: "adham2002"
 
 # Frontend Configuration
 frontend:
-  image: adhamelganzoury/k8s-frontend:latest
+  image: adhamelganzoury/kubeshop-frontend:latest
   replicaCount: 1
   servicePort: 80
   containerPort: 5173
@@ -36,7 +33,7 @@ frontend:
 
 # MongoDB Configuration
 mongodb:
-  image: adhamelganzoury/k8s-mongo:latest
+  image: adhamelganzoury/kubeshop-mongodb:latest
   replicaCount: 1
   mongoExpressImage: mongo-express:latest
   storageSize: 3Gi
@@ -48,16 +45,16 @@ mongodb:
     appPassword: adham2002
 
 # Redis Configuration
-redis:
-  enabled: true
-  image: redis:latest
-  replicaCount: 1
-  storageSize: 1Gi
-  service:
-    name: redis
-    port: 6379
-  secrets:
-    password: "adham2002"  
+# redis:
+#   enabled: false
+#   image: redis:latest
+#   replicaCount: 1
+#   storageSize: 1Gi
+#   service:
+#     name: redis
+#     port: 6379
+#   secrets:
+#     password: "adham2002"  
 ingress:
   enabled: true
   className: "nginx"
