@@ -64,4 +64,5 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/kubeshop-key.pem
           chmod 600 ~/.ssh/kubeshop-key.pem
           ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
-          
+          # Test SSH connection
+          ssh -i ~/.ssh/kubeshop-key.pem -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.AWS_HOST }} "echo 'SSH connection successful'"
