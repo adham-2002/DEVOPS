@@ -70,15 +70,15 @@
         group: "{{ ansible_user }}"
         mode: '0755'
 
-    - name: Clone private repository
-      git:
-        repo: "{{ repo_url }}"
-        dest: "{{ app_dir }}"
-        version: main
-        force: yes
-      register: clone_result
-      retries: 3
-      delay: 10
-      until: clone_result is succeeded
-      environment:
-        GIT_TERMINAL_PROMPT: "0"
+- name: Clone private repository
+  git:
+    repo: "https://{{ github_pat }}@github.com/adham-2002/E-Commerce-Platform.git"
+    dest: "{{ app_dir }}"
+    version: main
+    force: yes
+  register: clone_result
+  retries: 3
+  delay: 10
+  until: clone_result is succeeded
+  environment:
+    GIT_TERMINAL_PROMPT: "0"
