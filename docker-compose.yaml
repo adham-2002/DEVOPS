@@ -3,7 +3,6 @@ services:
     # ! best practice leave it like that 
     # ! notice <project-name>_<service-name>_<instance-number> : this is the default name of the container
     image: ${DOCKER_USERNAME}/kubeshop-backend:latest
-    build: ./backend
     ports:
       - "3000:3000"  
     # depends_on:
@@ -25,7 +24,6 @@ services:
 
   frontend:
     image: ${DOCKER_USERNAME}/kubeshop-frontend:latest
-    build: ./frontend
     ports:
       - "5173:80"  
     depends_on:
