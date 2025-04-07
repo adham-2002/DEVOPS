@@ -60,17 +60,30 @@ jobs:
 
       - name: Configure SSH
         run: |
+          echo "Debug: Checking environment variables"
+          echo "AWS_HOST: ${{ secrets.AWS_HOST }}"
+          echo "SSH_USERNAME: ${{ secrets.SSH_USERNAME }}"
+
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 --decode > ~/.ssh/kubeshop-key.pem
           chmod 600 ~/.ssh/kubeshop-key.pem
+
+          echo "Debug: Verifying SSH key permissions"
+          ls -l ~/.ssh/kubeshop-key.pem
+
+          echo "Debug: Verifying SSH access to AWS Host"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/kubeshop-key.pem ${SSH_USERNAME}@${AWS_HOST} "echo 'SSH connection successful!'"
+
           ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+          
       - name: Run Ansible playbook
         run: |
+          echo "Debug: Running Ansible Playbook"
           cd ansible
           ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml \
             --extra-vars "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
             DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} \
             GITHUB_PAT=${{ secrets.GITHUB_PAT }} \
-            ansible_user=${{ secrets.SSH_USERNAME }}"
+            ansible_user=${{ secrets.SSH_USERNAME }}" -vvvv
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
