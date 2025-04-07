@@ -70,6 +70,13 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: '0644'
+    - name: Copy .env file to server
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../.env"
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
 
     # ✅ Run Docker Compose
     - name: Run Docker Compose
