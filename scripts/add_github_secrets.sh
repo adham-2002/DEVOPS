@@ -22,6 +22,7 @@ if [ $? -ne 0 ]; then
     gh auth login
 fi
 
+
 # Read secrets from the file and add them to GitHub
 echo "🚀 Adding secrets from secrets.txt to $REPO..."
 while IFS=: read -r key value; do
