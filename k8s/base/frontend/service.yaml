@@ -9,5 +9,5 @@ spec:
   ports:
   - protocol: TCP
     port: 80  # Change from 5173 to 80 for ingress
-    targetPort: 5173
+    targetPort: 80
   type: ClusterIP

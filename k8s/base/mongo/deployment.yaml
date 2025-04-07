@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mongodb
-        image: adhamelganzoury/k8s-mongo:latest
+        image: adhamelganzoury/kubeshop-mongodb:latest
         # imagePullPolicy: Never
         ports:
         - containerPort: 27017

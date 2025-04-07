@@ -8,7 +8,6 @@ labels:
        app: backend
 
 resources:
-  - configmap.yaml
   - deployment.yaml
   - secret.yaml
   - service.yaml

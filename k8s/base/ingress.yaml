@@ -14,7 +14,7 @@ spec:
               service:
                 name: frontend
                 port:
-                  number: 5173
+                  number: 80  # Match service port here (not 5173)
           - path: /api
             pathType: Prefix
             backend:
@@ -22,10 +22,3 @@ spec:
                 name: backend
                 port:
                   number: 3000
-          # - path: /mongo-express
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: mongo-express
-          #       port:
-          #         number: 8081

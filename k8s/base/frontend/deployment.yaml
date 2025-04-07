@@ -5,8 +5,6 @@ metadata:
   namespace: kubeshop
 spec:
   replicas: 1
-  strategy:
-    type: RollingUpdate
   selector:
     matchLabels:
       app: frontend
@@ -17,14 +15,31 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: adhamelganzoury/k8s-frontend:latest
-        # imagePullPolicy: Never
+        image: ${DOCKER_USERNAME}/kubeshop-frontend:latest
         ports:
-        - containerPort: 5173
+        - containerPort: 80
+        env:
+        - name: VITE_BASE_URL
+          value: "http://backend:3000/api"
         resources:
           limits:
-            memory: "1Gi"
+            memory: "512Mi"
             cpu: "1"
           requests:
             memory: "256Mi"
-            cpu: "1"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: kubeshop
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080

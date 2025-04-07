@@ -1,26 +1,44 @@
 ---
-- name: Validate Local Development Environment
-  hosts: local_servers
-  become: false  # No sudo needed for local checks
+- name: Deploy application to EC2
+  hosts: all
+  become: yes
+  vars:
+    docker_username: "{{ DOCKER_USERNAME }}"
+    docker_password: "{{ DOCKER_PASSWORD }}"
+    github_pat: "{{ GITHUB_PAT }}"
+    
   tasks:
-    - name: Check Docker Installation
-      command: docker --version
-      register: docker_version
-      ignore_errors: yes
+    - name: Install Docker
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - docker-compose
+        update_cache: yes
+        state: present
 
-    - name: Check Docker Compose Installation
-      command: docker compose version
-      register: docker_compose_version
-      ignore_errors: yes
+    - name: Start and enable Docker service
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
 
-    - name: Check if Jenkins Container is Running
-      command: docker ps --filter "name=jenkins" --format "{{'{{'}}.Status{{'}}'}}"
-      register: jenkins_status
-      ignore_errors: yes
+    - name: Login to Docker Hub
+      ansible.builtin.shell:
+        cmd: "docker login -u {{ docker_username }} -p {{ docker_password }}"
+        
+    - name: Clone private repository
+      ansible.builtin.git:
+        repo: "https://{{ github_pat }}@github.com/your-username/your-repo.git"
+        dest: /home/ubuntu/kubeshop
+        version: main
+        force: yes
 
-    - name: Display Results
-      debug:
-        msg:
-          - "Docker: {{ docker_version.stdout | default('Not installed') }}"
-          - "Docker Compose: {{ docker_compose_version.stdout | default('Not installed') }}"
-          - "Jenkins Container Status: {{ jenkins_status.stdout | default('Not running') }}"
+    - name: Copy environment file
+      ansible.builtin.template:
+        src: .env
+        dest: /home/ubuntu/kubeshop/.env
+
+    - name: Bring up containers
+      ansible.builtin.shell:
+        chdir: /home/ubuntu/kubeshop
+        cmd: docker compose up -d
