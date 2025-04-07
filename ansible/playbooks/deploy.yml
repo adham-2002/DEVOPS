@@ -5,8 +5,6 @@
   vars:
     docker_username: "{{ DOCKER_USERNAME }}"
     docker_password: "{{ DOCKER_PASSWORD }}"
-    github_pat: "{{ GITHUB_PAT }}"
-    repo_url: "https://{{ github_pat }}@github.com/adham-2002/E-Commerce-Platform.git"
     app_dir: "/home/{{ ansible_user }}/ecommerce-app"
 
   tasks:
@@ -61,7 +59,7 @@
         groups: docker
         append: yes
 
-    # Clone repository
+    # Ensure app directory exists
     - name: Ensure app directory exists
       file:
         path: "{{ app_dir }}"
@@ -70,15 +68,19 @@
         group: "{{ ansible_user }}"
         mode: '0755'
 
-    - name: Clone private repository
-      git:
-        repo: "https://{{ github_pat }}@github.com/adham-2002/E-Commerce-Platform.git"
+    # Copy project files from GitHub Actions runner to remote host
+    - name: Copy project files to remote host
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../"  # path to the root of the repo relative to the playbook
         dest: "{{ app_dir }}"
-        version: main
-        force: yes
-      register: clone_result
-      retries: 3
-      delay: 10
-      until: clone_result is succeeded
-      environment:
-        GIT_TERMINAL_PROMPT: "0"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    # Run Docker Compose
+    - name: Run Docker Compose
+      ansible.builtin.shell: |
+        docker compose down
+        docker compose up -d
+      args:
+        chdir: "{{ app_dir }}"
