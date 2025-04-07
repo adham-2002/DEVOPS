@@ -64,3 +64,13 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 --decode > ~/.ssh/kubeshop-key.pem
           chmod 600 ~/.ssh/kubeshop-key.pem
           ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+      - name: Run Ansible playbook
+        run: |
+          cd ansible
+          ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml \
+            --extra-vars "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
+            DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} \
+            GITHUB_PAT=${{ secrets.GITHUB_PAT }} \
+            ansible_user=${{ secrets.SSH_USERNAME }}"
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"

@@ -1,44 +1,84 @@
 ---
-- name: Deploy application to EC2
+- name: Deploy E-Commerce Platform
   hosts: all
   become: yes
   vars:
     docker_username: "{{ DOCKER_USERNAME }}"
     docker_password: "{{ DOCKER_PASSWORD }}"
     github_pat: "{{ GITHUB_PAT }}"
-    
+    repo_url: "https://{{ github_pat }}@github.com/adham-2002/E-Commerce-Platform.git"
+    app_dir: "/home/{{ ansible_user }}/ecommerce-app"
+
   tasks:
-    - name: Install Docker
-      ansible.builtin.apt:
+    # Install prerequisites
+    - name: Install required system packages
+      apt:
         name:
-          - docker.io
-          - docker-compose
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
         update_cache: yes
         state: present
 
+    # Install Docker
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    # Configure Docker
     - name: Start and enable Docker service
-      ansible.builtin.service:
+      service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Login to Docker Hub
-      ansible.builtin.shell:
-        cmd: "docker login -u {{ docker_username }} -p {{ docker_password }}"
-        
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    # Clone repository
+    - name: Ensure app directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
     - name: Clone private repository
-      ansible.builtin.git:
-        repo: "https://{{ github_pat }}@github.com/your-username/your-repo.git"
-        dest: /home/ubuntu/kubeshop
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
         version: main
         force: yes
-
-    - name: Copy environment file
-      ansible.builtin.template:
-        src: .env
-        dest: /home/ubuntu/kubeshop/.env
-
-    - name: Bring up containers
-      ansible.builtin.shell:
-        chdir: /home/ubuntu/kubeshop
-        cmd: docker compose up -d
+      register: clone_result
+      retries: 3
+      delay: 10
+      until: clone_result is succeeded
+      environment:
+        GIT_TERMINAL_PROMPT: "0"
