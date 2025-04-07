@@ -3,24 +3,20 @@
   hosts: all
   become: yes
   vars:
-    docker_username: "{{ DOCKER_USERNAME }}"
-    docker_password: "{{ DOCKER_PASSWORD }}"
     app_dir: "/home/{{ ansible_user }}/ecommerce-app"
 
   tasks:
-    # Install prerequisites
-    - name: Install required system packages
+    # Install Docker and Docker Compose
+    - name: Install prerequisites
       apt:
         name:
           - apt-transport-https
           - ca-certificates
           - curl
           - software-properties-common
-          - git
         update_cache: yes
         state: present
 
-    # Install Docker
     - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -31,14 +27,14 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
         state: present
 
-    - name: Install Docker
+    - name: Install Docker packages
       apt:
         name:
           - docker-ce
           - docker-ce-cli
           - containerd.io
-        state: present
         update_cache: yes
+        state: present
 
     - name: Install Docker Compose
       get_url:
@@ -46,8 +42,7 @@
         dest: /usr/local/bin/docker-compose
         mode: '0755'
 
-    # Configure Docker
-    - name: Start and enable Docker service
+    - name: Enable and start Docker
       service:
         name: docker
         state: started
@@ -59,7 +54,6 @@
         groups: docker
         append: yes
 
-    # Ensure app directory exists
     - name: Ensure app directory exists
       file:
         path: "{{ app_dir }}"
@@ -68,16 +62,16 @@
         group: "{{ ansible_user }}"
         mode: '0755'
 
-    # Copy project files from GitHub Actions runner to remote host
-    - name: Copy project files to remote host
+    # ✅ Copy ONLY the docker-compose.yaml file
+    - name: Copy docker-compose.yaml to server
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../"  # path to the root of the repo relative to the playbook
-        dest: "{{ app_dir }}"
+        src: "{{ playbook_dir }}/../../docker-compose.yaml"
+        dest: "{{ app_dir }}/docker-compose.yaml"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        mode: '0755'
+        mode: '0644'
 
-    # Run Docker Compose
+    # ✅ Run Docker Compose
     - name: Run Docker Compose
       ansible.builtin.shell: |
         docker compose down
