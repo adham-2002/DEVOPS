@@ -82,6 +82,6 @@
     - name: Run Docker Compose
       ansible.builtin.shell: |
         docker compose down
-        docker compose up -d
+        docker-compose up -d --build
       args:
         chdir: "{{ app_dir }}"
