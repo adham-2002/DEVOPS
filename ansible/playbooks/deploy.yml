@@ -77,6 +77,13 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: '0600'
+    - name: Copy NGINX config to server
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../nginx/nginx.conf"
+        dest: "{{ app_dir }}/nginx/nginx.conf"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
 
     # ✅ Run Docker Compose
     - name: Run Docker Compose
