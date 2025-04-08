@@ -56,5 +56,3 @@ services:
 networks:
   kubeshop-network:
 
-volumes:
-  mongo-kubeshop-data:
