@@ -1,7 +1,7 @@
 services:
   backend:
-    # build:
-    #   context: ./backend
+    build:
+      context: ./backend
     image: ${DOCKER_USERNAME}/kubeshop-backend:latest
     expose:
       - "3000"  # 👈 نستخدم expose بدل ports
@@ -22,8 +22,8 @@ services:
 
   frontend:
     image: ${DOCKER_USERNAME}/kubeshop-frontend:latest
-    # build:
-    #   context: ./frontend
+    build:
+      context: ./frontend
     expose:
       - "80"  
     depends_on:
