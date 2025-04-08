@@ -1,16 +1,14 @@
 services:
   backend:
-    # ! best practice leave it like that 
-    # ! notice <project-name>_<service-name>_<instance-number> : this is the default name of the container
+    build:
+      context: ./backend
     image: ${DOCKER_USERNAME}/kubeshop-backend:latest
-    ports:
-      - "3000:3000"  
-    # depends_on:
-    #   - mongodb
+    expose:
+      - "3000"  # 👈 نستخدم expose بدل ports
     environment:
-      MONGO_URI: ${MONGO_URI}
-      JWT_SECRET: ${JWT_SECRET}
-      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
     networks:
       - kubeshop-network
     deploy:
@@ -24,12 +22,14 @@ services:
 
   frontend:
     image: ${DOCKER_USERNAME}/kubeshop-frontend:latest
-    ports:
-      - "5173:80"  
+    build:
+      context: ./frontend
+    expose:
+      - "80"  
     depends_on:
       - backend
     environment:
-         - VITE_BASE_URL=http://localhost:3000/api
+      - VITE_BASE_URL=/api
     networks:
       - kubeshop-network
     deploy:
@@ -41,58 +41,20 @@ services:
           memory: "256M"
           cpus: "0.5"
 
-  # mongodb:
-  #   image: ${DOCKER_USERNAME}/kubeshop-mongodb:latest
-  #   build: ./db
-  #   container_name: mongodb_container
-  #   restart: unless-stopped
-  #   ports:
-  #     - "27017:27017"
-  #   command: ["mongod","--auth"]
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
-  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
-  #     MONGO_INITDB_DATABASE: ${MONGO_APP_DB}
-  #     MONGO_APP_USER: ${MONGO_APP_USER}
-  #     MONGO_APP_PASS: ${MONGO_APP_PASS}
-  #   volumes:
-  #     -  mongo-kubeshop-data:/data/db
-  #   networks:
-  #     - kubeshop-network
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: "2.0"  
-  #         memory: "1G" 
-  #       reservations:
-  #         cpus: "1.0"  
-  #         memory: "512M" 
-
-  # mongo-express:
-  #   image: mongo-express:latest
-  #   container_name: mongo_express_container
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8081:8081"
-  #   depends_on:
-  #     - mongodb
-  #   environment:
-  #     ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USER}
-  #     ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASS}
-  #     ME_CONFIG_MONGODB_SERVER: mongodb
-  #   networks:
-  #     - kubeshop-network
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: "256M"
-  #         cpus: "0.5"
-  #       reservations:
-  #         memory: "128M"
-  #         cpus: "0.25"
-
-volumes:
-   mongo-kubeshop-data:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"  # 👈 البورت الوحيد المفتوح من خارج الشبكة
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf  # 👈 ملف إعدادات nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - kubeshop-network
 
 networks:
   kubeshop-network:
+
+volumes:
+  mongo-kubeshop-data:

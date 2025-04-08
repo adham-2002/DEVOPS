@@ -25,9 +25,9 @@ mongoose
   });
 
 seedInitialProducts();
-app.use("/api/user", userRoute);
-app.use("/api/products", productRoute);
-app.use("/api/cart", cartRoute);
+app.use("/user", userRoute);
+app.use("/products", productRoute);
+app.use("/cart", cartRoute);
 // app.get("/health", (req, res) => {
 //   res.status(200).send("ok");
 // })
