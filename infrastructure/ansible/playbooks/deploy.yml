@@ -1,0 +1,144 @@
+---
+- name: Deploy E-Commerce Platform
+  hosts: all
+  become: yes
+  vars:
+    app_dir: "/home/{{ ansible_user }}/ecommerce-app"
+    docker_compose_version: "2.23.0"  # Make version configurable
+    docker_compose_path: "/usr/local/bin/docker-compose"
+
+  tasks:
+    # Install Docker and dependencies
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+        update_cache: yes
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+        update_cache: yes
+        state: present
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-x86_64"
+        dest: "{{ docker_compose_path }}"
+        mode: '0755'
+      register: download_compose
+      until: download_compose is succeeded
+      retries: 3
+      delay: 5
+
+    - name: Verify Docker Compose installation
+      command: "{{ docker_compose_path }} --version"
+      register: compose_version
+      changed_when: false
+
+    - name: Debug Docker Compose version
+      debug:
+        var: compose_version.stdout
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    # Create application directory structure
+    - name: Ensure app directory structure exists
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+      with_items:
+        - "{{ app_dir }}"
+        - "{{ app_dir }}/nginx"
+        - "{{ app_dir }}/env"
+
+    # Copy configuration files with proper paths
+    - name: Copy docker-compose.yaml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../infrastructure/docker/docker-compose.yaml"
+        dest: "{{ app_dir }}/docker-compose.yaml"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Copy production environment file
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../infrastructure/docker/env/.env.prod"
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
+
+    - name: Copy nginx configuration
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../infrastructure/nginx/nginx.conf"
+        dest: "{{ app_dir }}/nginx/nginx.conf"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    # Docker login and operations
+    - name: Login to Docker Hub
+      community.docker.docker_login:
+        username: "{{ DOCKER_USERNAME }}"
+        password: "{{ DOCKER_PASSWORD }}"
+        email: "{{ DOCKER_EMAIL | default(omit) }}"
+
+    - name: Pull and deploy containers
+      ansible.builtin.shell: |
+        set -o pipefail
+        {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml down --remove-orphans
+        {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml pull
+        {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml up -d --build
+      args:
+        chdir: "{{ app_dir }}"
+      environment:
+        DOCKER_USERNAME: "{{ DOCKER_USERNAME }}"
+        DOCKER_PASSWORD: "{{ DOCKER_PASSWORD }}"
+      register: compose_output
+      changed_when: "'Creating' in compose_output.stdout or 'Starting' in compose_output.stdout"
+
+    - name: Show docker compose output
+      debug:
+        var: compose_output.stdout_lines
+
+    - name: Verify containers are running
+      command: "{{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml ps"
+      register: running_containers
+      changed_when: false
+
+    - name: Display running containers
+      debug:
+        var: running_containers.stdout_lines
