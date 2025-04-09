@@ -94,7 +94,7 @@
     - name: Copy nginx.conf
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../../docker/nginx.conf"  # Modify the path to your actual location
-        dest: "{{ app_dir }}/nginx.conf/nginx.conf"
+        dest: "{{ app_dir }}/nginx.conf"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: '0644'
