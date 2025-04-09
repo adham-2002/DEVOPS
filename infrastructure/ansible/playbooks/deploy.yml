@@ -87,11 +87,11 @@
     # Copy configuration files with proper paths
     - name: Copy docker-compose.yaml
       ansible.builtin.copy:
-      src: "{{ playbook_dir }}/../../docker/docker-compose.yaml"  # Goes up 2 levels from playbooks/
-      dest: "{{ app_dir }}/docker-compose.yaml"
-      owner: "{{ ansible_user }}"
-      group: "{{ ansible_user }}"
-      mode: '0644'
+        src: "{{ playbook_dir }}/../../docker/docker-compose.yaml"  # Goes up 2 levels from playbooks/
+        dest: "{{ app_dir }}/docker-compose.yaml"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
 
     - name: Copy environment file
       ansible.builtin.copy:
