@@ -39,7 +39,6 @@ jobs:
       - name: Build and Push Docker Images
         working-directory: ./e-commerce-platform/infrastructure/docker
         run: |
-          cp ../../../env/.env.prod .env  # Copy prod env file
           docker compose -f docker-compose.yaml build --no-cache
           docker compose -f docker-compose.yaml push
           rm .env  # Remove after build for security

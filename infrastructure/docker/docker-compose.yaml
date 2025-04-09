@@ -7,7 +7,7 @@ services:
     expose:
       - "3000"
     env_file:
-      - ../../env/.env.dev  # Path to your .env file
+      - ../../infrastructure/docker/env/.env.dev
     environment:
       - MONGO_URI=${MONGO_URI}
       - JWT_SECRET=${JWT_SECRET}
@@ -32,7 +32,7 @@ services:
     depends_on:
       - backend
     env_file:
-      - ../../env/.env.dev  # Path to your .env file
+      - ../../infrastructure/docker/env/.env.dev
     environment:
       - VITE_BASE_URL=/api
     networks:
@@ -51,7 +51,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../../infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf  # Correct path
     depends_on:
       - frontend
       - backend
