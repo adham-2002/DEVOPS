@@ -55,4 +55,6 @@ services:
 
 networks:
   kubeshop-network:
+
+
   
