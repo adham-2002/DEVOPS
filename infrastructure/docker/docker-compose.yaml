@@ -1,4 +1,3 @@
-
 services:
   backend:
     build:
@@ -7,9 +6,9 @@ services:
     expose:
       - "3000"
     environment:
-      - MONGO_URI=${MONGO_URI}
-      - JWT_SECRET=${JWT_SECRET}
-      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - MONGO_URI=mongodb+srv://adham54732:l3sfSf25TBFEGwmr@aaie.qzizwal.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=AAIE
+      - JWT_SECRET=adhamsomethingsecret
+      - REFRESH_TOKEN_SECRET=adham2002
     networks:
       - kubeshop-network
     deploy:
@@ -29,7 +28,6 @@ services:
       - "80"
     depends_on:
       - backend
-
     environment:
       - VITE_BASE_URL=/api
     networks:
