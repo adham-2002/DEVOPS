@@ -71,8 +71,8 @@
         groups: docker
         append: yes
 
-    # Create application directory structure
-    - name: Ensure app directory structure exists
+    # Create ecommerce-app directory structure (only app_dir and env, not nginx)
+    - name: Ensure ecommerce app directory structure exists
       file:
         path: "{{ item }}"
         state: directory
@@ -81,8 +81,16 @@
         mode: '0755'
       with_items:
         - "{{ app_dir }}"
-        - "{{ app_dir }}/nginx"
         - "{{ app_dir }}/env"
+
+    # Ensure external nginx directory exists (outside ecommerce-app)
+    - name: Ensure external nginx directory exists
+      file:
+        path: "/home/{{ ansible_user }}/nginx"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
 
     # Copy configuration files with proper paths
     - name: Copy docker-compose.yaml
@@ -96,7 +104,7 @@
     - name: Copy nginx configuration
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../../nginx/nginx.conf"  # Goes up 2 levels from playbooks/
-        dest: "{{ app_dir }}/nginx/nginx.conf"
+        dest: "/home/{{ ansible_user }}/nginx/nginx.conf"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: '0644'
@@ -110,7 +118,7 @@
 
     - name: Pull and deploy containers
       ansible.builtin.shell: |
-        bash -c 'set -o pipefail; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml down --remove-orphans; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml pull; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml up -d --build'
+        bash -c 'set -o pipefail; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml down --remove-orphans; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml pull; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml up -d'
       args:
         chdir: "{{ app_dir }}"
       environment:
