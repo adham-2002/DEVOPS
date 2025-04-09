@@ -81,16 +81,6 @@
         mode: '0755'
       with_items:
         - "{{ app_dir }}"
-        - "{{ app_dir }}/env"
-
-    # Ensure external nginx directory exists (outside ecommerce-app)
-    - name: Ensure external nginx directory exists
-      file:
-        path: "/home/{{ ansible_user }}/nginx"
-        state: directory
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-        mode: '0755'
 
     # Copy configuration files with proper paths
     - name: Copy docker-compose.yaml
@@ -101,13 +91,6 @@
         group: "{{ ansible_user }}"
         mode: '0644'
 
-    - name: Copy nginx configuration
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../../nginx/nginx.conf"  # Goes up 2 levels from playbooks/
-        dest: "/home/{{ ansible_user }}/nginx/nginx.conf"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-        mode: '0644'
 
     # Docker login and operations
     - name: Login to Docker Hub
