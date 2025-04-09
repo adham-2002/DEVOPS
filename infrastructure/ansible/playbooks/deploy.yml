@@ -93,7 +93,6 @@
         group: "{{ ansible_user }}"
         mode: '0644'
 
-
     - name: Copy nginx configuration
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/../../nginx/nginx.conf"  # Goes up 2 levels from playbooks/
@@ -111,10 +110,7 @@
 
     - name: Pull and deploy containers
       ansible.builtin.shell: |
-        set -o pipefail
-        {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml down --remove-orphans
-        {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml pull
-        {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml up -d --build
+        bash -c 'set -o pipefail; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml down --remove-orphans; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml pull; {{ docker_compose_path }} -f {{ app_dir }}/docker-compose.yaml up -d --build'
       args:
         chdir: "{{ app_dir }}"
       environment:
