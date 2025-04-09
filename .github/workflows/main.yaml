@@ -75,6 +75,6 @@ jobs:
             --extra-vars "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
             DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} \
             GITHUB_PAT=${{ secrets.GITHUB_PAT }} \
-            ansible_user=${{ secrets.SSH_USERNAME }}" -v
+            ansible_user=${{ secrets.SSH_USERNAME }}" -vvv
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
