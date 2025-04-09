@@ -1,8 +1,8 @@
 services:
   backend:
-    build:
-      context: ../../src/backend
-    image: ${DOCKER_USERNAME}/kubeshop-backend:latest
+    # build:
+    #   context: ../../src/backend
+    image: adhamelganzoury/kubeshop-backend:latest
     expose:
       - "3000"
     environment:
@@ -21,9 +21,9 @@ services:
           cpus: "0.5"
 
   frontend:
-    image: ${DOCKER_USERNAME}/kubeshop-frontend:latest
-    build:
-      context: ../../src/frontend
+    image: adhamelganzoury/kubeshop-frontend:latest
+    # build:
+    #   context: ../../src/frontend
     expose:
       - "80"
     depends_on:
