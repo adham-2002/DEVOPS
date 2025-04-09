@@ -1,1 +1,0 @@
-`command to run` minikube service frontend

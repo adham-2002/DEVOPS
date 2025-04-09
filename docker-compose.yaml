@@ -4,7 +4,7 @@ services:
       context: ./backend
     image: ${DOCKER_USERNAME}/kubeshop-backend:latest
     expose:
-      - "3000"  # 👈 نستخدم expose بدل ports
+      - "3000" 
     environment:
       - MONGO_URI=${MONGO_URI}
       - JWT_SECRET=${JWT_SECRET}
