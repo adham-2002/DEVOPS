@@ -24,7 +24,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          path: 'e-commerce-platform'  # Match your root folder name
+          path: 'e-commerce-platform'
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
@@ -46,7 +46,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
-      AWS_HOST: ${{ secrets.AWS_HOST }}
+      AWS_HOSTS: ${{ secrets.AWS_HOSTS }}  # Comma-separated IPs
       SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
       
     steps:
@@ -66,15 +66,30 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 --decode > ~/.ssh/kubeshop-key.pem
           chmod 600 ~/.ssh/kubeshop-key.pem
-          ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
           
+          # Add all hosts to known_hosts
+          for ip in $(echo "${{ secrets.AWS_HOSTS }}" | tr ',' ' '); do
+              ssh-keyscan -H $ip >> ~/.ssh/known_hosts
+          done
+
+      - name: Generate dynamic inventory
+        working-directory: ./e-commerce-platform/infrastructure/ansible/inventory
+        run: |
+          # Create hosts.ini with dynamic IPs
+          echo "[production]" > hosts.ini
+          for ip in $(echo "${{ secrets.AWS_HOSTS }}" | tr ',' ' '); do
+              echo "$ip ansible_user=ubuntu" >> hosts.ini
+          done
+          echo -e "\n[production:vars]" >> hosts.ini
+          echo "ansible_ssh_private_key_file=~/.ssh/kubeshop-key.pem" >> hosts.ini
+          echo "ansible_python_interpreter=/usr/bin/python3" >> hosts.ini
+
       - name: Run Ansible playbook
         working-directory: ./e-commerce-platform/infrastructure/ansible
         run: |
           ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml \
             --extra-vars "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
             DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} \
-            GITHUB_PAT=${{ secrets.GITHUB_PAT }} \
-            ansible_user=${{ secrets.SSH_USERNAME }}" -vvv
+            GITHUB_PAT=${{ secrets.GITHUB_PAT }}" -vvv
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
