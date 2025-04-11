@@ -16,19 +16,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          path: 'e-commerce-platform'
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -37,24 +41,26 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Images
-        working-directory: ./e-commerce-platform/infrastructure/docker
+        working-directory: ./infrastructure/docker
         run: |
-          docker compose -f docker-compose.yaml build --no-cache
-          docker compose -f docker-compose.yaml push
+          docker buildx create --use
+          docker buildx build \
+            --file Dockerfile \
+            --tag $DOCKER_REGISTRY/$REPO_NAME:latest \
+            --cache-to type=local,dest=/tmp/.buildx-cache \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --push .
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     env:
-      AWS_HOSTS: ${{ secrets.AWS_HOSTS }}  # Comma-separated IPs
+      AWS_HOSTS: ${{ secrets.AWS_HOSTS }}
       SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          path: 'e-commerce-platform'
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Ansible
         run: |
@@ -66,16 +72,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 --decode > ~/.ssh/kubeshop-key.pem
           chmod 600 ~/.ssh/kubeshop-key.pem
-          
-          # Add all hosts to known_hosts
           for ip in $(echo "${{ secrets.AWS_HOSTS }}" | tr ',' ' '); do
               ssh-keyscan -H $ip >> ~/.ssh/known_hosts
           done
 
       - name: Generate dynamic inventory
-        working-directory: ./e-commerce-platform/infrastructure/ansible/inventory
+        working-directory: ./infrastructure/ansible/inventory
         run: |
-          # Create hosts.ini with dynamic IPs
           echo "[production]" > hosts.ini
           for ip in $(echo "${{ secrets.AWS_HOSTS }}" | tr ',' ' '); do
               echo "$ip ansible_user=ubuntu" >> hosts.ini
@@ -85,7 +88,7 @@ jobs:
           echo "ansible_python_interpreter=/usr/bin/python3" >> hosts.ini
 
       - name: Run Ansible playbook
-        working-directory: ./e-commerce-platform/infrastructure/ansible
+        working-directory: ./infrastructure/ansible
         run: |
           ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml \
             --extra-vars "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} \
