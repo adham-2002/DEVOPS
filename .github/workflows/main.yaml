@@ -45,8 +45,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: List files in docker directory
-        run: ls -al ./infrastructure/docker
       - name: Build and Push Docker Images with Docker Compose
         working-directory: ./infrastructure/docker
         run: |
@@ -56,14 +54,6 @@ jobs:
           # Build and push images with Docker Compose and caching
           docker-compose -f docker-compose.yaml build --build-arg BUILDKIT_INLINE_CACHE=1
           docker-compose -f docker-compose.yaml push
-          
-          # Optionally, you can also save the cache back to a registry
-          docker buildx build \
-            --file Dockerfile \
-            --tag $DOCKER_REGISTRY/$REPO_NAME:latest \
-            --cache-to type=local,dest=/tmp/.buildx-cache \
-            --cache-from type=local,src=/tmp/.buildx-cache \
-            --push .
 
   deploy:
     needs: build
