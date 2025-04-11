@@ -10,7 +10,7 @@ on:
 
 env:
   DOCKER_REGISTRY: docker.io
-  REPO_NAME: E-Commerce-Platform
+  REPO_NAME: e-commerce-platform
 
 jobs:
   build:
