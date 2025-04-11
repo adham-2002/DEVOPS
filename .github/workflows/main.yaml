@@ -54,8 +54,8 @@ jobs:
           docker buildx create --use
           
           # Build and push images with Docker Compose and caching
-          docker-compose -f docker-compose.yml build --build-arg BUILDKIT_INLINE_CACHE=1
-          docker-compose -f docker-compose.yml push
+          docker-compose -f docker-compose.yaml build --build-arg BUILDKIT_INLINE_CACHE=1
+          docker-compose -f docker-compose.yaml push
           
           # Optionally, you can also save the cache back to a registry
           docker buildx build \
