@@ -39,13 +39,15 @@ jobs:
         working-directory: ./infrastructure/terraform
         run: terraform apply -auto-approve -input=false
 
+      # In the Terraform job
       - name: Extract Instance IPs
         id: tf-output
         working-directory: ./infrastructure/terraform
         run: |
-          # Remove newlines and debug messages
-          IPS=$(terraform output -raw instance_ips | tr -d '\n')
-          printf "ips=%s" "$IPS" >> $GITHUB_OUTPUT
+          # Extract IPs and remove all non-IP characters (e.g., debug logs)
+          IPS=$(terraform output -raw instance_ips | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | tr '\n' ',')
+          IPS=${IPS%,}  # Remove trailing comma
+          echo "ips=$IPS" >> $GITHUB_OUTPUT
 
 
   build:
@@ -104,13 +106,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible 
 
+# In the Deploy job
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 --decode > ~/.ssh/kubeshop-key.pem
           chmod 600 ~/.ssh/kubeshop-key.pem
+
+          # Validate and process IPs
           for ip in $(echo "${{ needs.terraform.outputs.instance_ips }}" | tr ',' ' '); do
+            if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
               ssh-keyscan -H $ip >> ~/.ssh/known_hosts
+            else
+              echo "Skipping invalid IP: $ip"
+            fi
           done
 
       - name: Generate dynamic inventory
