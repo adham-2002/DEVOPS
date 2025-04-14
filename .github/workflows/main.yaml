@@ -42,9 +42,6 @@ jobs:
       - name: Extract Instance IPs
         id: tf-output
         working-directory: ./infrastructure/terraform
-      - name: Extract Instance IPs
-        id: tf-output
-        working-directory: ./infrastructure/terraform
         run: |
           # Remove newlines and debug messages
           IPS=$(terraform output -raw instance_ips | tr -d '\n')
