@@ -18,7 +18,7 @@ data "aws_key_pair" "existing" {
 }
 # define security group for EC2 istances 
 resource "aws_security_group" "tf-sg"{
-    name = "kubeshop-sg204402"
+    name = "kubeshop-sg2021442"
     description = "Allow SSH and HTTP connction"
     // allow SSH
 ingress{
