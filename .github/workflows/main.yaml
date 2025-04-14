@@ -43,8 +43,9 @@ jobs:
         id: tf-output
         working-directory: ./infrastructure/terraform
         run: |
-          IPS=$(terraform output -raw instance_ips)  # Fix output name
+          IPS=$(terraform output -raw instance_ips 2>/dev/null)  # Suppress debug logs
           echo "ips=$IPS" >> $GITHUB_OUTPUT
+
 
   build:
     runs-on: ubuntu-latest
