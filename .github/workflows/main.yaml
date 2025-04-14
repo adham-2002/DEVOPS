@@ -37,7 +37,9 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./infrastructure/terraform
-        run: terraform apply -auto-approve -input=false
+        run: |
+          terraform destroy -auto-approve
+          terraform apply -auto-approve -input=false
 
       # In the Terraform job
       - name: Extract Instance IPs
