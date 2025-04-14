@@ -16,9 +16,16 @@ data "aws_key_pair" "existing" {
     
 
 }
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnet_ids" "default" {
+  vpc_id = data.aws_vpc.default.id
+}
 # define security group for EC2 istances 
 resource "aws_security_group" "tf-sg"{
-    name = "kubeshop-sg243545"
+    name = "kubeshop-sg2024"
     description = "Allow SSH and HTTP connction"
     // allow SSH
 ingress{
@@ -49,6 +56,7 @@ resource "aws_instance" "kubeshop-tf"{
     instance_type = "t2.micro"
     key_name = data.aws_key_pair.existing.key_name
     security_groups = [aws_security_group.tf-sg.name]
+    subnet_id     = data.aws_subnet_ids.default.ids[0]
     tags = {
         Name = "my_ecommerce_server-${count.index}"
     }
