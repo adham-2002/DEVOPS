@@ -42,10 +42,13 @@ jobs:
       - name: Extract Instance IPs
         id: tf-output
         working-directory: ./infrastructure/terraform
+      - name: Extract Instance IPs
+        id: tf-output
+        working-directory: ./infrastructure/terraform
         run: |
-          # Extract only the IPs (remove debug messages)
-          IPS=$(terraform output -raw instance_ips | awk -F '::' '{print $1}')
-          echo "ips=$IPS" >> $GITHUB_OUTPUT
+          # Remove newlines and debug messages
+          IPS=$(terraform output -raw instance_ips | tr -d '\n')
+          printf "ips=%s" "$IPS" >> $GITHUB_OUTPUT
 
 
   build:
