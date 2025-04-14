@@ -33,7 +33,7 @@ data "aws_subnets" "default" {
 
 # Define security group
 resource "aws_security_group" "tf-sg" {
-  name        = "kubeshop-sg20424"
+  name        = "kubeshop-sg"
   description = "Allow SSH and HTTP/HTTPS connections"
 
   ingress {
