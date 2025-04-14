@@ -30,6 +30,7 @@ data "aws_subnets" "default" {
   }
 }
 
+
 # Define security group
 resource "aws_security_group" "tf-sg" {
   name        = "kubeshop-sg20424"
