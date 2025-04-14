@@ -43,7 +43,7 @@ jobs:
         id: tf-output
         working-directory: ./infrastructure/terraform
         run: |
-          IPS=$(terraform output -raw instance_public_ips)
+          IPS=$(terraform output -raw instance_ips)  # Fix output name
           echo "ips=$IPS" >> $GITHUB_OUTPUT
 
   build:
