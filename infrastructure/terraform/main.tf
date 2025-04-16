@@ -29,6 +29,8 @@ data "aws_subnets" "default" {
     values = [data.aws_vpc.default.id]
   }
 }
+
+# Security Group for ALB
 resource "aws_security_group" "alb_sg" {
   name        = "alb-sg"
   description = "Allow HTTP/HTTPS traffic to ALB"
@@ -56,11 +58,13 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
-# Define security group
+# Security Group for EC2 Instances
 resource "aws_security_group" "tf-sg" {
   name        = "kubeshop-sg"
-  description = "Allow SSH and HTTP/HTTPS connections"
+  description = "Allow SSH from anywhere, HTTP/HTTPS only from ALB"
+  vpc_id      = data.aws_vpc.default.id
 
+  # Allow SSH from anywhere (adjust as needed)
   ingress {
     from_port   = 22
     to_port     = 22
@@ -68,18 +72,20 @@ resource "aws_security_group" "tf-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Allow HTTP only from the ALB
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
+  # Allow HTTPS only from the ALB
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   egress {
@@ -92,19 +98,19 @@ resource "aws_security_group" "tf-sg" {
 
 # Define EC2 instances
 resource "aws_instance" "kubeshop-tf" {
-  count         = var.instance_count
-  ami           = "ami-084568db4383264d4"
-  instance_type = "t2.micro"
-  key_name      = data.aws_key_pair.existing.key_name
-  subnet_id     = data.aws_subnets.default.ids[0] # pick first subnet
+  count               = var.instance_count
+  ami                 = "ami-084568db4383264d4"
+  instance_type       = "t2.micro"
+  key_name            = data.aws_key_pair.existing.key_name
+  subnet_id           = data.aws_subnets.default.ids[0] # pick first subnet
   vpc_security_group_ids = [aws_security_group.tf-sg.id]
 
   tags = {
     Name = "my_ecommerce_server-${count.index}"
   }
 }
+
 # Define ALB 
-# Application Load Balancer
 resource "aws_lb" "ci_cd_pipeline" {
   name               = "ci-cd-pipeline-lb"
   internal           = false
@@ -115,7 +121,7 @@ resource "aws_lb" "ci_cd_pipeline" {
   enable_deletion_protection = false
 }
 
-# Target Group
+# Target Group for ALB
 resource "aws_lb_target_group" "app_tg" {
   name     = "app-target-group"
   port     = 80
@@ -131,7 +137,7 @@ resource "aws_lb_target_group" "app_tg" {
   }
 }
 
-# Listener
+# Listener for ALB
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.ci_cd_pipeline.arn
   port              = "80"
@@ -143,7 +149,7 @@ resource "aws_lb_listener" "front_end" {
   }
 }
 
-# Target Group Attachments
+# Target Group Attachments for EC2 instances
 resource "aws_lb_target_group_attachment" "tg_attachment" {
   count            = var.instance_count
   target_group_arn = aws_lb_target_group.app_tg.arn
