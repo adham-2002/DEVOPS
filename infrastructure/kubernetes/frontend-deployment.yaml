@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: adhamelganzoury/kubeshop-frontend:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: VITE_BASE_URL
+          value: /api
+        resources:
+          limits:
+            memory: 512M
+            cpu: "1"
+          requests:
+            memory: 256M
+            cpu: "0.5"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
