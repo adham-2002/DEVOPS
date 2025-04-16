@@ -140,6 +140,6 @@ jobs:
         run: |
           ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml \
               --extra-vars "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" -v
-          env:
+        env:
             ANSIBLE_HOST_KEY_CHECKING: "False"
         
