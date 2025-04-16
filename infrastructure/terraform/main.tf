@@ -95,6 +95,7 @@ resource "aws_security_group" "tf-sg" {
   }
 }
 
+
 # Define EC2 instances
 resource "aws_instance" "kubeshop-tf" {
   count               = var.instance_count
