@@ -87,7 +87,6 @@ resource "aws_security_group" "tf-sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.alb_sg.id]
   }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -114,7 +113,7 @@ resource "aws_instance" "kubeshop-tf" {
 resource "aws_lb" "ci_cd_pipeline" {
   name               = "ci-cd-pipeline-lb"
   internal           = false
-  load_balancer_type = "application"
+  load_balancer_type = "application"# application or network
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = data.aws_subnets.default.ids
 

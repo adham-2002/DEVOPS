@@ -22,8 +22,6 @@ spec:
           value: mongodb+srv://adham54732:l3sfSf25TBFEGwmr@aaie.qzizwal.mongodb.net/Ecommerce?retryWrites=true&w=majority&appName=AAIE
         - name: JWT_SECRET
           value: adhamsomethingsecret
-        - name: REFRESH_TOKEN_SECRET
-          value: adham2002
         resources:
           limits:
             memory: 1G
